@@ -1,3 +1,4 @@
+import queue
 import time
 
 import numpy as np
@@ -12,6 +13,7 @@ class Agent:
     def __init__(self) -> None:
         self.env = None
         self.OPEN = []
+        self.OPEN_QUEUE = queue.PriorityQueue()
         self.CLOSE = []
         self.path = []
 
@@ -25,18 +27,20 @@ class Agent:
 
 class Node:
     def __init__(self, state: Tuple, parent: 'Node', g: int, action: int, depth: int, terminated: bool,
-                 h: float = None) -> None:
+                 f: float = None) -> None:
         self.state = state
         self.parent = parent
         self.g = g
         self.action = action
         self.depth = depth
         self.terminated = terminated
-        self.h = h
+        self.f = f
 
     # TODO: check if these functions are useful
     def __lt__(self, other: 'Node') -> bool:
-        return self.g + self.h < other.g + other.h
+        if self.f == other.f:
+            return self.state < other.state
+        return self.f < other.f
 
     def __eq__(self, other: 'Node') -> bool:
         return self.state == other.state
@@ -113,9 +117,89 @@ class BFSAgent(Agent):
 class WeightedAStarAgent(Agent):
     def __init__(self) -> None:
         super().__init__()
+        
 
     def search(self, env: DragonBallEnv, h_weight) -> Tuple[List[int], float, int]:
-        raise NotImplementedError
+        self.env = env
+        self.OPEN_QUEUE = queue.PriorityQueue(maxsize =  env.ncol * env.nrow * 2 * 2) 
+
+        self.env.reset()
+        hmap = self.h_msap(self.env.get_initial_state())
+        print(hmap)
+        expanded_nodes = 0
+        node = Node(state = self.env.get_initial_state(), parent = None, g = 0, action = 0, depth = 0, 
+                    terminated = False, f = h_weight * self.h_msap(self.env.get_initial_state()))
+        if self.env.is_final_state(node.state):
+            return [], 0, 0
+        self.OPEN_QUEUE.put(((node.f, node.state[0]), node))
+
+        while self.OPEN_QUEUE:
+            
+            node = self.OPEN_QUEUE.get()[1]
+            self.CLOSE.append(node)
+            expanded_nodes += 1
+            self.env.set_state_2(node.state)
+            if node.terminated is True and not self.env.is_final_state(node.state):
+                continue
+
+            for action, (s, c, term) in self.env.succ(node.state).items():
+
+                node_new_state, cost, terminated = self.env.step(action)
+                f_val = (node.g + cost) * (1 - h_weight) +  self.h_msap(node_new_state) * h_weight
+                new_node = Node(node_new_state, node, node.g + cost, action, 0, bool(terminated), f_val)
+                
+                if self.env.is_final_state(node_new_state):
+                        return self.solution(new_node), new_node.g, expanded_nodes #check
+                    
+                # iterable_queue = self.queue_to_list(self.OPEN_QUEUE)
+                open_iterable_queue = None
+                if not self.OPEN_QUEUE.empty():
+                    open_iterable_queue = list(self.OPEN_QUEUE.queue)
+                    
+                
+                if (node_new_state not in [c.state for c in self.CLOSE]) and ((open_iterable_queue is None) or (node_new_state not in [n[1].state for n in open_iterable_queue])):
+                    self.OPEN_QUEUE.put(((new_node.f, new_node.state[0]), new_node))
+                elif node_new_state in [n[1].state for n in open_iterable_queue]:
+                    for n in open_iterable_queue:
+                        if n[1].state == node_new_state and n[1].f > new_node.f:
+                            self.OPEN_QUEUE.remove(n)
+                            self.OPEN_QUEUE.put(((new_node.f, new_node.state[0]), new_node))
+                            break
+                elif new_node in self.CLOSE:
+                    for n in self.CLOSE:
+                        if n.state == node_new_state and n.f > new_node.f:
+                            self.CLOSE.remove(n)
+                            self.OPEN_QUEUE.put(((new_node.f, new_node.state[0]), new_node))
+                            break
+                self.env.set_state_2(node.state)
+                
+        return [], 0, expanded_nodes
+    
+    def queue_to_list(self, priority_queue):
+        priority_queue_list = []
+        while not priority_queue.empty():
+            item = priority_queue.get()[1]
+            priority_queue_list.append(item)
+    
+    def h_msap(self, state: Tuple) -> int:
+        min_dist = 1000000
+        for goal in self.env.get_goal_states():
+            row_diff = goal[0]//self.env.ncol - state[0]//self.env.ncol
+            col_diff = goal[0]%self.env.ncol - state[0]%self.env.ncol
+            dist = row_diff + col_diff
+            if dist < min_dist:
+                min_dist = dist
+        
+        d1_dist = self.env.d1[0]//self.env.ncol - state[0]//self.env.ncol + self.env.d1[0]%self.env.ncol - state[0]%self.env.ncol
+                
+        if d1_dist < min_dist:
+            min_dist = d1_dist
+        
+        d2_dist = self.env.d2[0]//self.env.ncol - state[0]//self.env.ncol + self.env.d2[0]%self.env.ncol - state[0]%self.env.ncol
+        if d2_dist < min_dist:
+            min_dist = d2_dist
+            
+        return min_dist
 
 
 class AStarEpsilonAgent():
