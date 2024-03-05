@@ -110,7 +110,8 @@ class BFSAgent(Agent):
 
     def search(self, env: DragonBallEnv) -> Tuple[List[int], int, int]:
         self.env = env
-
+        self.CLOSE = []
+        self.OPEN = []
         self.env.reset()
 
         expanded_nodes = 0
@@ -268,4 +269,5 @@ class AStarEpsilonAgent(Agent):
         for node in list(heap.keys()):
             if node.f <= min_f * (1 + epsilon):
                 focal[node] = (node.g, node.state[0])
+                # focal[node] = (self.h_msap(node.state), node.state[0])
         return focal
