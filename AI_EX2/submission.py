@@ -17,7 +17,30 @@ def check_time_limit(start, time_limit):
 
 
 def smart_heuristic(env: WarehouseEnv, robot_id: int):
-    pass
+    h_val = 40 + 1000 * env.get_robot(robot_id).credit
+    max_charge = 40
+    # charge_rate = env.get_robot(robot_id).battery / max_charge
+    charge_rate = 1
+    current_packages = [p for p in env.packages if p.on_board]
+    if not env.get_robot(robot_id).package:
+        if len(current_packages) == 1:
+            h_val -= charge_rate * manhattan_distance(env.get_robot(robot_id).position, current_packages[0].position)
+        else:
+            min_dist = charge_rate * min(
+                manhattan_distance(env.get_robot(robot_id).position, current_packages[0].position),
+                manhattan_distance(env.get_robot(robot_id).position, current_packages[1].position))
+            h_val -= min_dist
+            # h_val += (1 - charge_rate) * min(
+            #     manhattan_distance(env.get_robot(robot_id).position, env.charge_stations[0].position),
+            #     manhattan_distance(env.get_robot(robot_id).position, env.charge_stations[1].position))
+    else:
+        h_val += 100
+        dist = charge_rate * manhattan_distance(env.get_robot(robot_id).position,
+                                                env.get_robot(robot_id).package.destination)
+        h_val -= dist
+        # h_val += (1 - charge_rate) * min(manhattan_distance(env.get_robot(robot_id).position, env.charge_stations[0]),
+        #                                  manhattan_distance(env.get_robot(robot_id).position, env.charge_stations[1]))
+    return h_val
 
 
 class AgentGreedyImproved(AgentGreedy):
