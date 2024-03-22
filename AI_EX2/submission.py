@@ -78,12 +78,9 @@ class AgentMinimax(Agent):
                 for op, child in zip(ops_children[0], ops_children[1]):
                     children_values.append(self.minimax(child, (agent_id + 1) % 2, time_limit, agent_id, start, depth))
                 max_heuristic = max(children_values)
-                if max_heuristic == float('-inf'):
-                    operation = random.choice(operators)
-                    raise Exception
 
                 # print the children heuristics and the operator
-                # operators_and_values = [(j, operators[i]) for i, j in enumerate(children_values)]
+                operators_and_values = [(j, operators[i]) for i, j in enumerate(children_values)]
                 # print("the operators and their values for minimax agent:")
                 # print(operators_and_values)
 
@@ -102,21 +99,23 @@ class AgentMinimax(Agent):
         # print("turn: ", agent_id, "time limit: ", time_limit, "original agent: ", original_agent_id, "time: ",
         #       time.time() - time_started)
         # finished calculating the actual values
-        if env.done():
-            if env.get_robot(original_agent_id).credit > env.get_robot((original_agent_id + 1) % 2).credit:
-                return float('inf')
-            elif env.get_robot(original_agent_id).credit < env.get_robot((original_agent_id + 1) % 2).credit:
-                return float('-inf')
-            else:
-                # TODO: in case of draw, return either inf or -inf when clarifications on the matter are given
-                # for now, putting -inf
-                return float('-inf')
-        if depth == 0:
-            return self.heuristic(env, agent_id)
         if not self.got_time(time_started, time_limit):
             # time limit is almost up, returning heuristic
             # print("time limit reached")
             raise Exception
+
+        if env.done():
+            if env.get_robot(original_agent_id).credit > env.get_robot((original_agent_id + 1) % 2).credit:
+                return float('inf')
+            elif env.get_robot(original_agent_id).credit < env.get_robot((original_agent_id + 1) % 2).credit:
+                return self.heuristic(env, agent_id)
+            else:
+                # TODO: in case of draw, return either inf or -inf when clarifications on the matter are given
+                # for now, putting -inf
+                return self.heuristic(env, agent_id)
+        if depth == 0:
+            return self.heuristic(env, agent_id)
+
 
         if agent_id == original_agent_id:
             return self.max_value(env, agent_id, time_limit, original_agent_id, time_started, depth - 1)

@@ -80,6 +80,7 @@ def run_agents():
 
         for i in range(num_of_games):
             game_num = i
+            # print("\n\n")
             print("Starting game ", i)
             env.generate(args.seed + i, 2*args.count_steps)
             if args.console_print:
