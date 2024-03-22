@@ -79,6 +79,8 @@ def run_agents():
         num_of_games = 100
 
         for i in range(num_of_games):
+            game_num = i
+            print("Starting game ", i)
             env.generate(args.seed + i, 2*args.count_steps)
             if args.console_print:
                 print('initial board:')
@@ -104,10 +106,13 @@ def run_agents():
                     break
             balances = env.get_balances()
             if balances[0] == balances[1]:
+                print("draw")
                 draws += 1
             elif balances[0] > balances[1]:
+                print("robot 0 won game ", game_num)
                 robot0_wins += 1
             else:
+                print("robot 1 won game ", game_num)
                 robot1_wins += 1
         print("Robot 0 wins: ", robot0_wins)
         print("Robot 1 wins: ", robot1_wins)

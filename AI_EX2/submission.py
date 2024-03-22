@@ -3,6 +3,7 @@ import time
 from Agent import Agent, AgentGreedy
 from WarehouseEnv import WarehouseEnv, manhattan_distance, Robot
 import random
+import numpy as np
 
 # TODO: test time limit
 TIME_THRESHOLD = 0.97
@@ -62,8 +63,10 @@ class AgentMinimax(Agent):
         # TODO: currently not looking at amount of steps, check if its important
         start = time.time()
         depth = 1
-        op = 'park'
-        print("\n\n")
+        operation = ''
+        # helps for printing the children
+        # print("\n\n")
+
         # doing one step of minimax since I want to return the operator
         # the minmax function will return the max value of each child
         try:
@@ -75,17 +78,25 @@ class AgentMinimax(Agent):
                 for op, child in zip(ops_children[0], ops_children[1]):
                     children_values.append(self.minimax(child, (agent_id + 1) % 2, time_limit, agent_id, start, depth))
                 max_heuristic = max(children_values)
+                if max_heuristic == float('-inf'):
+                    operation = random.choice(operators)
+                    raise Exception
+
                 # print the children heuristics and the operator
-                operators_and_values = [(j, operators[i]) for i, j in enumerate(children_values)]
-                print("the operators and their values for minimax agent:")
-                print(operators_and_values)
+                # operators_and_values = [(j, operators[i]) for i, j in enumerate(children_values)]
+                # print("the operators and their values for minimax agent:")
+                # print(operators_and_values)
+
                 max_values = [i for i, j in enumerate(children_values) if j == max_heuristic]
                 v = random.choice(max_values)
-                op = operators[v]
+                operation = operators[v]
+                if max_heuristic == float('inf'):
+                    raise Exception
                 depth += 1
         except:
-            print("\n\n")
-            return op
+            # helps for printing the children
+            # print("\n\n")
+            return operation
 
     def minimax(self, env: WarehouseEnv, agent_id, time_limit, original_agent_id, time_started, depth):
         # print("turn: ", agent_id, "time limit: ", time_limit, "original agent: ", original_agent_id, "time: ",
