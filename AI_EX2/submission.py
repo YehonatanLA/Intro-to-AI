@@ -1,11 +1,11 @@
 import time
 
 from Agent import Agent, AgentGreedy
-from WarehouseEnv import WarehouseEnv, manhattan_distance
+from WarehouseEnv import WarehouseEnv, manhattan_distance, Robot
 import random
 
 # TODO: test time limit
-TIME_THRESHOLD = 0.99
+TIME_THRESHOLD = 0.97
 
 
 # TODO: section a : 3
@@ -52,36 +52,85 @@ class AgentMinimax(Agent):
     def heuristic(self, env: WarehouseEnv, robot_id: int):
         return smart_heuristic(env, robot_id)
 
-    def check_agent_time(self, start, time_limit):
+    @staticmethod
+    def got_time(start, time_limit):
         return check_time_limit(start, time_limit)
 
     # TODO: section b : 1
 
     def run_step(self, env: WarehouseEnv, agent_id, time_limit):
-        # TODO: change depth to time limit
+        # TODO: currently not looking at amount of steps, check if its important
         start = time.time()
-        return self.minimax(env, agent_id, time_limit, agent_id, start)
+        depth = 1
+        op = 'park'
+        print("\n\n")
+        # doing one step of minimax since I want to return the operator
+        # the minmax function will return the max value of each child
+        try:
+            while True:
+                operators = env.get_legal_operators(agent_id)
+                ops_children = self.successors(env, agent_id)
+                children_values = []
 
-    def minimax(self, env: WarehouseEnv, agent_id, time_limit, original_agent_id, time_started):
-        if self.check_agent_time(time_started, time_limit) or env.done():
+                for op, child in zip(ops_children[0], ops_children[1]):
+                    children_values.append(self.minimax(child, (agent_id + 1) % 2, time_limit, agent_id, start, depth))
+                max_heuristic = max(children_values)
+                # print the children heuristics and the operator
+                operators_and_values = [(j, operators[i]) for i, j in enumerate(children_values)]
+                print("the operators and their values for minimax agent:")
+                print(operators_and_values)
+                max_values = [i for i, j in enumerate(children_values) if j == max_heuristic]
+                v = random.choice(max_values)
+                op = operators[v]
+                depth += 1
+        except:
+            print("\n\n")
+            return op
+
+    def minimax(self, env: WarehouseEnv, agent_id, time_limit, original_agent_id, time_started, depth):
+        # print("turn: ", agent_id, "time limit: ", time_limit, "original agent: ", original_agent_id, "time: ",
+        #       time.time() - time_started)
+        # finished calculating the actual values
+        if env.done():
+            if env.get_robot(original_agent_id).credit > env.get_robot((original_agent_id + 1) % 2).credit:
+                return float('inf')
+            elif env.get_robot(original_agent_id).credit < env.get_robot((original_agent_id + 1) % 2).credit:
+                return float('-inf')
+            else:
+                # TODO: in case of draw, return either inf or -inf when clarifications on the matter are given
+                # for now, putting -inf
+                return float('-inf')
+        if depth == 0:
             return self.heuristic(env, agent_id)
+        if not self.got_time(time_started, time_limit):
+            # time limit is almost up, returning heuristic
+            # print("time limit reached")
+            raise Exception
 
         if agent_id == original_agent_id:
-            return self.max_value(env, agent_id, time_limit, original_agent_id, time_started)
+            return self.max_value(env, agent_id, time_limit, original_agent_id, time_started, depth - 1)
         else:
-            return self.min_value(env, agent_id, time_limit, original_agent_id, time_started)
+            return self.min_value(env, agent_id, time_limit, original_agent_id, time_started, depth - 1)
 
-    def max_value(self, env: WarehouseEnv, agent_id, time_limit, original_agent_id, time_started):
-        v = float('-inf')
-        for op, child in self.successors(env, agent_id):
-            v = max(v, self.minimax(child, (agent_id + 1) % 2, time_limit, original_agent_id, time_started))
-        return v
+    def max_value(self, env: WarehouseEnv, agent_id, time_limit, original_agent_id, time_started, depth):
+        successors = self.successors(env, agent_id)
+        # print(f"function: max_value. turn: {agent_id} successors: ", successors)
+        max_heuristic = float('-inf')
 
-    def min_value(self, env: WarehouseEnv, agent_id, time_limit, original_agent_id, time_started):
-        v = float('inf')
-        for op, child in self.successors(env, agent_id):
-            v = min(v, self.minimax(child, (agent_id + 1) % 2, time_limit, original_agent_id, time_started))
-        return v
+        for op, child in zip(successors[0], successors[1]):
+            curr_heuristic = self.minimax(child, (agent_id + 1) % 2, time_limit, original_agent_id, time_started, depth)
+            max_heuristic = max(max_heuristic, curr_heuristic)
+        return max_heuristic
+
+    def min_value(self, env: WarehouseEnv, agent_id, time_limit, original_agent_id, time_started, depth):
+        successors = self.successors(env, agent_id)
+        # print(f"function: min_value. turn: {agent_id} successors: ", successors)
+        min_heuristic = float('inf')
+
+        for op, child in zip(successors[0], successors[1]):
+            curr_heuristic = self.minimax(child, (agent_id + 1) % 2, time_limit, original_agent_id, time_started, depth)
+            min_heuristic = min(min_heuristic, curr_heuristic)
+        return min_heuristic
 
     def successors(self, env: WarehouseEnv, robot_id: int):
         operators = env.get_legal_operators(robot_id)

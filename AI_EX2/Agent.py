@@ -30,6 +30,7 @@ class AgentRandom(Agent):
 
 class AgentGreedy(Agent):
     def run_step(self, env: WarehouseEnv, robot_id, time_limit):
+        print("running greedy step")
         operators = env.get_legal_operators(robot_id)
         children = [env.clone() for _ in operators]
         for child, op in zip(children, operators):

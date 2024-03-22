@@ -39,7 +39,6 @@ def run_agents():
     # agent_names = sys.argv
     agent_names = [args.agent0, args.agent1]
     env = WarehouseEnv()
-
     if not args.tournament:
         env.generate(args.seed, 2*args.count_steps)
 
@@ -50,7 +49,8 @@ def run_agents():
         if args.screen_print:
             env.pygame_print()
 
-        for _ in range(args.count_steps):
+        for j in range(args.count_steps):
+            print('\n\nstep', j)
             for i, agent_name in enumerate(agent_names):
                 agent = agents[agent_name]
                 start = time.time()
