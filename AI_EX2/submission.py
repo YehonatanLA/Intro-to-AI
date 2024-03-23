@@ -7,6 +7,7 @@ import numpy as np
 
 # TODO: test time limit
 TIME_THRESHOLD = 0.97
+SPECIAL_OPS = ['move east', 'pick up']
 
 
 # TODO: section a : 3
@@ -60,7 +61,6 @@ class AgentMinimax(Agent):
     # TODO: section b : 1
 
     def run_step(self, env: WarehouseEnv, agent_id, time_limit):
-        # TODO: currently not looking at amount of steps, check if its important
         start = time.time()
         depth = 1
         operation = ''
@@ -97,7 +97,7 @@ class AgentMinimax(Agent):
             # print("\n\n")
             return operation
 
-    def minimax(self, env: WarehouseEnv, agent_id, time_limit, original_agent_id, time_started, depth):
+    def minimax(self, env: WarehouseEnv, agent_turn, time_limit, original_agent_id, time_started, depth):
         if not self.got_time(time_started, time_limit):
             raise Exception
 
@@ -113,10 +113,10 @@ class AgentMinimax(Agent):
         if depth == 0:
             return self.heuristic(env, original_agent_id)
 
-        if agent_id == original_agent_id:
-            return self.max_value(env, agent_id, time_limit, original_agent_id, time_started, depth - 1)
+        if agent_turn == original_agent_id:
+            return self.max_value(env, agent_turn, time_limit, original_agent_id, time_started, depth - 1)
         else:
-            return self.min_value(env, agent_id, time_limit, original_agent_id, time_started, depth - 1)
+            return self.min_value(env, agent_turn, time_limit, original_agent_id, time_started, depth - 1)
 
     def max_value(self, env: WarehouseEnv, agent_id, time_limit, original_agent_id, time_started, depth):
         successors = self.successors(env, agent_id)
@@ -141,14 +141,176 @@ class AgentMinimax(Agent):
 
 class AgentAlphaBeta(Agent):
     # TODO: section c : 1
+
+    def heuristic(self, env: WarehouseEnv, robot_id: int):
+        return smart_heuristic(env, robot_id)
+
+    @staticmethod
+    def got_time(start, time_limit):
+        return check_time_limit(start, time_limit)
+
     def run_step(self, env: WarehouseEnv, agent_id, time_limit):
-        raise NotImplementedError()
+        start = time.time()
+        depth = 1
+        operation = ''
+        try:
+            while True:
+                alpha = float('-inf')
+                beta = float('inf')
+                ops_children = self.successors(env, agent_id)
+                children_values = []
+                max_heuristic = float('-inf')
+
+                for op, child in zip(ops_children[0], ops_children[1]):
+                    curr_value = self.ab_minimax(child, (agent_id + 1) % 2, time_limit, agent_id, start, depth,
+                                                 alpha, beta)
+                    children_values.append((curr_value, op))
+                    max_heuristic = max(max_heuristic, curr_value)
+
+                max_values_operations = [tup[1] for tup in children_values if tup[0] == max_heuristic]
+                operation = random.choice(max_values_operations)
+                if max_heuristic == float('inf'):
+                    raise Exception
+                depth += 1
+        except:
+            return operation
+
+    def ab_minimax(self, env: WarehouseEnv, agent_id, time_limit, original_agent_id, time_started, depth, alpha, beta):
+        if not self.got_time(time_started, time_limit):
+            raise Exception
+
+        if env.done():
+            if env.get_robot(original_agent_id).credit > env.get_robot((original_agent_id + 1) % 2).credit:
+                return float('inf')
+            elif env.get_robot(original_agent_id).credit < env.get_robot((original_agent_id + 1) % 2).credit:
+                return self.heuristic(env, original_agent_id)
+            else:
+                return self.heuristic(env, original_agent_id)
+        if depth == 0:
+            return self.heuristic(env, original_agent_id)
+
+        if agent_id == original_agent_id:
+            successors = self.successors(env, agent_id)
+            max_heuristic = float('-inf')
+
+            for op, child in zip(successors[0], successors[1]):
+                curr_heuristic = self.ab_minimax(child, (agent_id + 1) % 2, time_limit, original_agent_id, time_started,
+                                                 depth, alpha, beta)
+                max_heuristic = max(max_heuristic, curr_heuristic)
+                alpha = max(alpha, max_heuristic)  # ?
+                if max_heuristic >= beta:
+                    return float('inf')
+            return max_heuristic
+        else:
+            successors = self.successors(env, agent_id)
+            min_heuristic = float('inf')
+
+            for op, child in zip(successors[0], successors[1]):
+                curr_heuristic = self.ab_minimax(child, (agent_id + 1) % 2, time_limit, original_agent_id, time_started,
+                                                 depth, alpha, beta)
+                min_heuristic = min(min_heuristic, curr_heuristic)
+                beta = min(beta, min_heuristic)
+                if min_heuristic <= alpha:
+                    return float('-inf')
+            return min_heuristic
 
 
 class AgentExpectimax(Agent):
     # TODO: section d : 1
+
+    def heuristic(self, env: WarehouseEnv, robot_id: int):
+        return smart_heuristic(env, robot_id)
+
+    @staticmethod
+    def got_time(start, time_limit):
+        return check_time_limit(start, time_limit)
+
+    def calculate_probabilities(self, successors):
+        denominator = 0
+        probabilities = {}
+        global SPECIAL_OPS
+        for op, _ in zip(successors[0], successors[1]):
+            if op in SPECIAL_OPS:
+                denominator += 2
+            else:
+                denominator += 1
+        for op, _ in zip(successors[0], successors[1]):
+            if op not in SPECIAL_OPS:
+                probabilities[op] = 1 / denominator
+            else:
+                probabilities[op] = 2 / denominator
+        return probabilities
+
     def run_step(self, env: WarehouseEnv, agent_id, time_limit):
-        raise NotImplementedError()
+        start = time.time()
+        depth = 1
+        operation = ''
+        # helps for printing the children
+        # print("\n\n")
+
+        # doing one step of expectimax since I want to return the operator
+        # the expectimax function will return the max value of each child
+        try:
+            while True:
+                # operators = env.get_legal_operators(agent_id)
+                ops_children = self.successors(env, agent_id)
+                children_values = []
+                max_heuristic = float('-inf')
+
+                for op, child in zip(ops_children[0], ops_children[1]):
+                    curr_value = self.expectimax(child, (agent_id + 1) % 2, time_limit, agent_id, start, depth)
+                    children_values.append((curr_value, op))
+                    max_heuristic = max(max_heuristic, curr_value)
+
+                # print the children heuristics and the operator
+                # operators_and_values = [(j, operators[i]) for i, j in enumerate(children_values)]
+                # print("the operators and their values for expectimax agent:")
+                # print(children_values)
+
+                max_values_operations = [tup[1] for tup in children_values if tup[0] == max_heuristic]
+                operation = random.choice(max_values_operations)
+                if max_heuristic == float('inf'):
+                    raise Exception
+                depth += 1
+
+        except:
+            # helps for printing the children
+            # print("\n\n")
+            return operation
+
+    def expectimax(self, env: WarehouseEnv, agent_turn, time_limit, original_agent_id, time_started, depth):
+        if not self.got_time(time_started, time_limit):
+            raise Exception
+
+        if env.done() or depth == 0:
+            return self.heuristic(env, original_agent_id)
+
+        if agent_turn == original_agent_id:
+            return self.max_value(env, agent_turn, time_limit, original_agent_id, time_started, depth - 1)
+        else:
+            return self.expected_value(env, agent_turn, time_limit, original_agent_id, time_started, depth - 1)
+
+    def max_value(self, env: WarehouseEnv, agent_id, time_limit, original_agent_id, time_started, depth):
+        successors = self.successors(env, agent_id)
+        max_heuristic = float('-inf')
+
+        for op, child in zip(successors[0], successors[1]):
+            curr_heuristic = self.expectimax(child, (agent_id + 1) % 2, time_limit, original_agent_id, time_started,
+                                             depth)
+            max_heuristic = max(max_heuristic, curr_heuristic)
+        return max_heuristic
+
+    def expected_value(self, env: WarehouseEnv, agent_id, time_limit, original_agent_id, time_started, depth):
+        successors = self.successors(env, agent_id)
+        probabilities = self.calculate_probabilities(successors)
+        expected_heuristic = 0
+
+        for op, child in zip(successors[0], successors[1]):
+            curr_heuristic = self.expectimax(child, (agent_id + 1) % 2, time_limit, original_agent_id, time_started,
+                                             depth)
+
+            expected_heuristic += curr_heuristic * probabilities[op]
+        return expected_heuristic
 
 
 # here you can check specific paths to get to know the environment
