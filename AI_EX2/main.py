@@ -50,7 +50,6 @@ def run_agents():
             env.pygame_print()
 
         for j in range(args.count_steps):
-            print('\n\nstep', j)
             for i, agent_name in enumerate(agent_names):
                 agent = agents[agent_name]
                 start = time.time()
@@ -76,7 +75,7 @@ def run_agents():
         robot0_wins = 0
         robot1_wins = 0
         draws = 0
-        num_of_games = 20
+        num_of_games = 30
 
         for i in range(num_of_games):
             game_num = i
@@ -107,13 +106,13 @@ def run_agents():
                     break
             balances = env.get_balances()
             if balances[0] == balances[1]:
-                print("draw")
+                # print("draw")
                 draws += 1
             elif balances[0] > balances[1]:
-                print("robot 0 won game ", game_num)
+                # print("robot 0 won game ", game_num)
                 robot0_wins += 1
             else:
-                print("robot 1 won game ", game_num)
+                # print("robot 1 won game ", game_num)
                 robot1_wins += 1
         print("Robot 0 wins: ", robot0_wins)
         print("Robot 1 wins: ", robot1_wins)
