@@ -60,7 +60,6 @@ class AgentMinimax(Agent):
     # TODO: section b : 1
 
     def run_step(self, env: WarehouseEnv, agent_id, time_limit):
-        # TODO: currently not looking at amount of steps, check if its important
         start = time.time()
         depth = 1
         operation = ''
@@ -97,7 +96,7 @@ class AgentMinimax(Agent):
             # print("\n\n")
             return operation
 
-    def minimax(self, env: WarehouseEnv, agent_id, time_limit, original_agent_id, time_started, depth):
+    def minimax(self, env: WarehouseEnv, agent_turn, time_limit, original_agent_id, time_started, depth):
         if not self.got_time(time_started, time_limit):
             raise Exception
 
@@ -113,10 +112,10 @@ class AgentMinimax(Agent):
         if depth == 0:
             return self.heuristic(env, original_agent_id)
 
-        if agent_id == original_agent_id:
-            return self.max_value(env, agent_id, time_limit, original_agent_id, time_started, depth - 1)
+        if agent_turn == original_agent_id:
+            return self.max_value(env, agent_turn, time_limit, original_agent_id, time_started, depth - 1)
         else:
-            return self.min_value(env, agent_id, time_limit, original_agent_id, time_started, depth - 1)
+            return self.min_value(env, agent_turn, time_limit, original_agent_id, time_started, depth - 1)
 
     def max_value(self, env: WarehouseEnv, agent_id, time_limit, original_agent_id, time_started, depth):
         successors = self.successors(env, agent_id)
@@ -148,8 +147,44 @@ class AgentAlphaBeta(Agent):
 class AgentExpectimax(Agent):
     # TODO: section d : 1
     def run_step(self, env: WarehouseEnv, agent_id, time_limit):
-        raise NotImplementedError()
+        start = time.time()
+        depth = 1
+        operation = ''
+        # helps for printing the children
+        # print("\n\n")
 
+        # doing one step of minimax since I want to return the operator
+        # the minmax function will return the max value of each child
+        try:
+            while True:
+                # operators = env.get_legal_operators(agent_id)
+                ops_children = self.successors(env, agent_id)
+                children_values = []
+                max_heuristic = float('-inf')
+
+                for op, child in zip(ops_children[0], ops_children[1]):
+                    curr_value = self.expectimax(child, (agent_id + 1) % 2, time_limit, agent_id, start, depth)
+                    children_values.append((curr_value, op))
+                    max_heuristic = max(max_heuristic, curr_value)
+
+                # print the children heuristics and the operator
+                # operators_and_values = [(j, operators[i]) for i, j in enumerate(children_values)]
+                # print("the operators and their values for minimax agent:")
+                # print(children_values)
+
+                max_values_operations = [tup[1] for tup in children_values if tup[0] == max_heuristic]
+                operation = random.choice(max_values_operations)
+                if max_heuristic == float('inf'):
+                    raise Exception
+                depth += 1
+
+        except:
+            # helps for printing the children
+            # print("\n\n")
+            return operation
+
+
+    def expectimax(self, ):
 
 # here you can check specific paths to get to know the environment
 class AgentHardCoded(Agent):
