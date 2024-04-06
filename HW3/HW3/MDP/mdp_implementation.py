@@ -1,26 +1,50 @@
 from copy import deepcopy
 import numpy as np
 import mdp as m
+
 actions_dict = {
     'UP': 0,
     'DOWN': 1,
     'RIGHT': 2,
     'LEFT': 3
 }
+ROWS = 3
+COLUMNS = 4
+
+
+def iterate_over_action(mdp: m.MDP, U_bar, r, c, action):
+    val = 0
+    # this loop is to sum up the probabilities that we do another action instead
+    for prob_action in mdp.actions:
+        next_state = mdp.step((r, c), prob_action)
+        val += mdp.transition_function[action][actions_dict[prob_action]] * U_bar[next_state[0]][next_state[1]]
+    return val
+
+
+def find_best_action_for_state(mdp: m.MDP, U, r, c):
+    global actions_dict
+    max_val = -np.inf
+    max_action = None
+
+    for action in mdp.actions:
+        val = iterate_over_action(mdp, U, r, c, action)
+        if val > max_val:
+            max_action = action
+            max_val = val
+    return max_action
+
+
 def find_best_utility_for_state(mdp: m.MDP, U_bar, r, c):
     global actions_dict
     max_val = -np.inf
     # this loop is to check the maximum action
     for action in mdp.actions:
-        val = 0
-        # this loop is to sum up the probabilities that we do another action instead
-        for prob_action in mdp.actions:
-            next_state = mdp.step((r, c), prob_action)
-            val += mdp.transition_function[action][actions_dict[prob_action]] * U_bar[next_state[0]][next_state[1]]
+        val = iterate_over_action(mdp, U_bar, r, c, action)
         if val > max_val:
             max_val = val
     return float(float(mdp.board[r][c]) + mdp.gamma * max_val)
     # return float(U_bar[r][c] + mdp.gamma * max_val)
+
 
 def value_iteration(mdp, U_init, epsilon=10 ** (-3)):
     # TODO:
@@ -47,12 +71,10 @@ def value_iteration(mdp, U_init, epsilon=10 ** (-3)):
                     continue
                 if mdp.board[r][c] == 'WALL':
                     continue
-                if r == 0 and c == 2:
-                    print("debug")
+
                 U_bar[r][c] = find_best_utility_for_state(mdp, U_bar, r, c)
                 if np.abs(U_bar[r][c] - U[r][c]) > delta:
                     delta = np.abs(U_bar[r][c] - U[r][c])
-        print(delta)
     return U
     # ========================
 
@@ -61,27 +83,18 @@ def get_policy(mdp, U):
     # TODO:
     # Given the mdp and the utility of each state - U (which satisfies the Belman equation)
     # return: the policy
-    #
-    # TODO: Maybe I acciedentally let copilot implement this function, check if it's correct
-    # U_bar = np.array(U)
-    # policy = np.zeros((mdp.num_row, mdp.num_col), dtype=object)
-    # for r in range(mdp.num_row):
-    #     for c in range(mdp.num_col):
-    #         if (r, c) in mdp.terminal_states:
-    #             policy[r][c] = None
-    #         elif mdp.board[r][c] == 'WALL':
-    #             policy[r][c] = None
-    #         else:
-    #             max_val = -np.inf
-    #             for action in mdp.actions:
-    #                 next_state = mdp.step((r, c), action)
-    #                 val = mdp.reward(next_state) + mdp.gamma * U_bar[next_state[0], next_state[1]]
-    #                 if val > max_val:
-    #                     max_val = val
-    #                     policy[r][c] = action
-    # return policy
-    # ====== YOUR CODE: ======
-    raise NotImplementedError
+    global ROWS, COLUMNS
+    policy = [[""] * COLUMNS for _ in range(ROWS)]
+
+    for r in range(mdp.num_row):
+        for c in range(mdp.num_col):
+            if (r, c) in mdp.terminal_states:
+                continue
+            if mdp.board[r][c] == 'WALL':
+                continue
+
+            policy[r][c] = find_best_action_for_state(mdp, U, r, c)
+    return policy
     # ========================
 
 
