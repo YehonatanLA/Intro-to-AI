@@ -1,3 +1,5 @@
+import itertools
+import math
 from copy import deepcopy
 import numpy as np
 import mdp as m
@@ -17,6 +19,8 @@ def iterate_over_action(mdp: m.MDP, U_bar, r, c, action):
     # this loop is to sum up the probabilities that we do another action instead
     for prob_action in mdp.actions:
         next_state = mdp.step((r, c), prob_action)
+        t = mdp.transition_function[action][actions_dict[prob_action]]
+        b = U_bar[next_state[0]][next_state[1]]
         val += mdp.transition_function[action][actions_dict[prob_action]] * U_bar[next_state[0]][next_state[1]]
     return val
 
@@ -28,10 +32,32 @@ def find_best_action_for_state(mdp: m.MDP, U, r, c):
 
     for action in mdp.actions:
         val = iterate_over_action(mdp, U, r, c, action)
-        if val > max_val:
+        if round(val, 2) > round(max_val, 2):
             max_action = action
             max_val = val
     return max_action
+
+
+def find_best_actions_for_state(mdp: m.MDP, U, r, c, epsilon=10 ** (-3)):
+    global actions_dict
+    max_val = -np.inf
+    actions_list = []
+    for action in mdp.actions:
+        val = iterate_over_action(mdp, U, r, c, action)
+        if val >= max_val - epsilon:
+            if val > max_val + epsilon:
+                actions_list.clear()
+            action_arrow = '\u2192'
+            if action == 'UP':
+                action_arrow = '\u2191'
+            elif action == 'DOWN':
+                action_arrow = '\u2193'
+            elif action == 'LEFT':
+                action_arrow = '\u2190'
+            actions_list.append(action_arrow)
+            max_val = val
+
+    return actions_list, len(actions_list)
 
 
 def find_best_utility_for_state(mdp: m.MDP, U_bar, r, c):
@@ -40,7 +66,7 @@ def find_best_utility_for_state(mdp: m.MDP, U_bar, r, c):
     # this loop is to check the maximum action
     for action in mdp.actions:
         val = iterate_over_action(mdp, U_bar, r, c, action)
-        if val > max_val:
+        if round(val, 2) > round(max_val, 2):
             max_val = val
     return float(float(mdp.board[r][c]) + mdp.gamma * max_val)
     # return float(U_bar[r][c] + mdp.gamma * max_val)
@@ -99,14 +125,30 @@ def get_policy(mdp, U):
 
 
 def policy_evaluation(mdp, policy):
-    # TODO:
-    # Given the mdp, and a policy
-    # return: the utility U(s) of each state s
-    #
+    I = np.eye(mdp.num_row * mdp.num_col)
+    policy_mat = np.zeros((mdp.num_row * mdp.num_col, mdp.num_row * mdp.num_col))
+    reward = np.zeros(mdp.num_row * mdp.num_col)
+    map_actions = {'UP': 0, 'DOWN': 1, 'RIGHT': 2, 'LEFT': 3}
+    for r in range(mdp.num_row):
+        for c in range(mdp.num_col):
+            if mdp.board[r][c] == 'WALL':
+                continue
+            state = r * mdp.num_col + c
+            reward[state] = float(mdp.board[r][c])
+            if (r, c) in mdp.terminal_states:
+                continue
 
-    # ====== YOUR CODE: ======
-    raise NotImplementedError
-    # ========================
+            for action in mdp.actions:
+                next_state = mdp.step((r, c), action)
+                next_state_pos = next_state[0] * mdp.num_col + next_state[1]
+                wanted_action = map_actions[policy[r][c]]
+                cur_action = map_actions[action]
+                policy_mat[state][next_state_pos] += mdp.transition_function[policy[r][c]][cur_action]
+
+    my_mat = np.add(I, np.dot(-mdp.gamma, policy_mat))
+    res_vector = np.linalg.solve(my_mat, reward)
+    return res_vector.reshape((mdp.num_row, mdp.num_col))
+    # utility = np.empty((mdp.num_row, mdp.num_col))
 
 
 def policy_iteration(mdp, policy_init):
@@ -117,14 +159,28 @@ def policy_iteration(mdp, policy_init):
     #
 
     # ====== YOUR CODE: ======
-    raise NotImplementedError
+    unchanged = False
+    while not unchanged:
+        U = policy_evaluation(mdp, policy_init)
+        unchanged = True
+        # for each state s in S:
+        for r in range(mdp.num_row):
+            for c in range(mdp.num_col):
+                if (r, c) in mdp.terminal_states or mdp.board[r][c] == "WALL":
+                    continue
+                max_action_value = iterate_over_action(mdp, U, r, c, find_best_action_for_state(mdp, U, r, c))
+                predicted_action_value = iterate_over_action(mdp, U, r, c, policy_init[r][c])
+                if round(max_action_value, 2) > round(predicted_action_value, 2):
+                    policy_init[r][c] = find_best_action_for_state(mdp, U, r, c)
+                    unchanged = False
+    return policy_init
     # ========================
 
 
 """For this functions, you can import what ever you want """
 
 
-def get_all_policies(mdp, U):  # You can add more input parameters as needed
+def get_all_policies(mdp, U, epsilon=10 ** (-3)):  # You can add more input parameters as needed
     # TODO:
     # Given the mdp, and the utility value U (which satisfies the Belman equation)
     # print / display all the policies that maintain this value
@@ -134,11 +190,26 @@ def get_all_policies(mdp, U):  # You can add more input parameters as needed
     #
 
     # ====== YOUR CODE: ======
-    raise NotImplementedError
+    global ROWS, COLUMNS
+    policy = [[""] * COLUMNS for _ in range(ROWS)]
+    policies_num = 1
+    for r in range(mdp.num_row):
+        for c in range(mdp.num_col):
+            if (r, c) in mdp.terminal_states:
+                continue
+            if mdp.board[r][c] == 'WALL':
+                continue
+            actions_cell, num_actions_cell = find_best_actions_for_state(mdp, U, r, c, epsilon)
+            actions_str = ''.join(actions_cell)
+            policy[r][c] = actions_str
+            policies_num *= num_actions_cell
+
+    mdp.print_policy(policy)
+    return policies_num
     # ========================
 
 
-def get_policy_for_different_rewards(mdp):  # You can add more input parameters as needed
+def get_policy_for_different_rewards(mdp, epsilon=10 ** (-3)):  # You can add more input parameters as needed
     # TODO:
     # Given the mdp
     # print / displas the optimal policy as a function of r
@@ -146,5 +217,29 @@ def get_policy_for_different_rewards(mdp):  # You can add more input parameters 
     #
 
     # ====== YOUR CODE: ======
-    raise NotImplementedError
+    MINIMAL_REWARD = -5
+    MAXIMAL_REWARD = 5
+    policies = []
+    rewards = []
+    curr_reward = MINIMAL_REWARD
+    while curr_reward <= MAXIMAL_REWARD:
+        policy = [['UP', 'UP', 'UP', None],
+                  ['UP', None, 'UP', None],
+                  ['UP', 'UP', 'UP', 'UP']]
+        for r in range(mdp.num_row):
+            for c in range(mdp.num_col):
+                if (r, c) in mdp.terminal_states:
+                    continue
+                if mdp.board[r][c] == 'WALL':
+                    continue
+                mdp.board[r][c] = str(curr_reward)
+        policy = policy_iteration(mdp, policy)
+        if policy not in policies:
+            policies.append(deepcopy(policy))
+            rewards.append(curr_reward)
+            print("Reward: ", curr_reward)
+            mdp.print_policy(policy)
+        curr_reward += 0.01
+        curr_reward = round(curr_reward, 2)
+    return rewards
     # ========================
