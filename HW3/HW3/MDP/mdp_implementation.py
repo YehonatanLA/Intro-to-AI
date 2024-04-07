@@ -1,3 +1,5 @@
+import itertools
+import math
 from copy import deepcopy
 import numpy as np
 import mdp as m
@@ -17,6 +19,8 @@ def iterate_over_action(mdp: m.MDP, U_bar, r, c, action):
     # this loop is to sum up the probabilities that we do another action instead
     for prob_action in mdp.actions:
         next_state = mdp.step((r, c), prob_action)
+        t= mdp.transition_function[action][actions_dict[prob_action]]
+        b = U_bar[next_state[0]][next_state[1]]
         val += mdp.transition_function[action][actions_dict[prob_action]] * U_bar[next_state[0]][next_state[1]]
     return val
 
@@ -97,16 +101,27 @@ def get_policy(mdp, U):
     return policy
     # ========================
 
-
 def policy_evaluation(mdp, policy):
-    # TODO:
-    # Given the mdp, and a policy
-    # return: the utility U(s) of each state s
-    #
+    I = np.eye(mdp.num_row * mdp.num_col)
+    policy_mat = np.zeros((mdp.num_row * mdp.num_col, mdp.num_row * mdp.num_col))
+    reward = np.zeros(mdp.num_row * mdp.num_col)
+    for r in range(mdp.num_row):
+        for c in range(mdp.num_col):
+            if mdp.board[r][c] == 'WALL':
+                continue
+            state = r * mdp.num_col + c
+            reward[state] = float(mdp.board[r][c])
+            if (r, c) in mdp.terminal_states:
+               continue
 
-    # ====== YOUR CODE: ======
-    raise NotImplementedError
-    # ========================
+            next_state = mdp.step((r, c), policy[r][c])
+            next_state = next_state[0] * mdp.num_col + next_state[1]
+            policy_mat[state][next_state] = 1
+
+    my_mat = np.add(I,  np.dot(-mdp.gamma, policy_mat))
+    res_vector = np.linalg.solve(my_mat, reward)
+    return res_vector.reshape((mdp.num_row, mdp.num_col))
+    # utility = np.empty((mdp.num_row, mdp.num_col))
 
 
 def policy_iteration(mdp, policy_init):
@@ -117,7 +132,24 @@ def policy_iteration(mdp, policy_init):
     #
 
     # ====== YOUR CODE: ======
-    raise NotImplementedError
+
+
+    unchanged = False
+    while not unchanged:
+        U = policy_evaluation(mdp, policy_init)
+        unchanged = True
+        # for each state s in S:
+        for r in range(mdp.num_row):
+            for c in range(mdp.num_col):
+                if (r, c) in mdp.terminal_states or mdp.board[r][c] == "WALL":
+                    continue
+                max_action_value = iterate_over_action(mdp, U, r, c, find_best_action_for_state(mdp, U, r, c))
+                predicted_action_value = iterate_over_action(mdp, U, r, c, policy_init[r][c])
+                if max_action_value > predicted_action_value:
+                    policy_init[r][c] = find_best_action_for_state(mdp, U, r, c)
+                    unchanged = False
+    return policy_init
+
     # ========================
 
 
