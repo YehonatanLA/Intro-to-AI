@@ -37,6 +37,27 @@ def find_best_action_for_state(mdp: m.MDP, U, r, c):
             max_val = val
     return max_action
 
+def find_best_actions_for_state(mdp: m.MDP, U, r, c, epsilon=10 ** (-3)):
+    global actions_dict
+    max_val = -np.inf
+    actions_list = []
+    for action in mdp.actions:
+        val = iterate_over_action(mdp, U, r, c, action)
+        if val >= max_val - epsilon:
+            if val > max_val + epsilon:
+                actions_list.clear()
+            action_arrow = '\u2192'
+            if action == 'UP':
+                action_arrow = '\u2191'
+            elif action == 'DOWN':
+                action_arrow = '\u2193'
+            elif action == 'LEFT':
+                action_arrow = '\u2190'
+            actions_list.append(action_arrow)
+            max_val = val
+
+    return actions_list, len(actions_list)
+
 
 def find_best_utility_for_state(mdp: m.MDP, U_bar, r, c):
     global actions_dict
@@ -136,8 +157,6 @@ def policy_iteration(mdp, policy_init):
     #
 
     # ====== YOUR CODE: ======
-
-
     unchanged = False
     while not unchanged:
         U = policy_evaluation(mdp, policy_init)
@@ -153,14 +172,12 @@ def policy_iteration(mdp, policy_init):
                     policy_init[r][c] = find_best_action_for_state(mdp, U, r, c)
                     unchanged = False
     return policy_init
-
     # ========================
 
 
 """For this functions, you can import what ever you want """
 
-
-def get_all_policies(mdp, U):  # You can add more input parameters as needed
+def get_all_policies(mdp, U, epsilon=10 ** (-3)):  # You can add more input parameters as needed
     # TODO:
     # Given the mdp, and the utility value U (which satisfies the Belman equation)
     # print / display all the policies that maintain this value
@@ -170,7 +187,22 @@ def get_all_policies(mdp, U):  # You can add more input parameters as needed
     #
 
     # ====== YOUR CODE: ======
-    raise NotImplementedError
+    global ROWS, COLUMNS
+    policy = [[""] * COLUMNS for _ in range(ROWS)]
+    policies_num = 1
+    for r in range(mdp.num_row):
+        for c in range(mdp.num_col):
+            if (r, c) in mdp.terminal_states:
+                continue
+            if mdp.board[r][c] == 'WALL':
+                continue
+            actions_cell, num_actions_cell = find_best_actions_for_state(mdp, U, r, c, epsilon)
+            actions_str = ''.join(actions_cell)
+            policy[r][c] = actions_str
+            policies_num *= num_actions_cell
+
+    mdp.print_policy(policy)
+    return policies_num
     # ========================
 
 
