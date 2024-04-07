@@ -105,6 +105,7 @@ def policy_evaluation(mdp, policy):
     I = np.eye(mdp.num_row * mdp.num_col)
     policy_mat = np.zeros((mdp.num_row * mdp.num_col, mdp.num_row * mdp.num_col))
     reward = np.zeros(mdp.num_row * mdp.num_col)
+    map_actions = {'UP': 0, 'DOWN': 1, 'RIGHT': 2, 'LEFT': 3}
     for r in range(mdp.num_row):
         for c in range(mdp.num_col):
             if mdp.board[r][c] == 'WALL':
@@ -114,9 +115,12 @@ def policy_evaluation(mdp, policy):
             if (r, c) in mdp.terminal_states:
                continue
 
-            next_state = mdp.step((r, c), policy[r][c])
-            next_state = next_state[0] * mdp.num_col + next_state[1]
-            policy_mat[state][next_state] = 1
+            for action in mdp.actions:
+                next_state = mdp.step((r, c), action)
+                next_state_pos = next_state[0] * mdp.num_col + next_state[1]
+                wanted_action = map_actions[policy[r][c]]
+                cur_action = map_actions[action]
+                policy_mat[state][next_state_pos] += mdp.transition_function[policy[r][c]][cur_action]
 
     my_mat = np.add(I,  np.dot(-mdp.gamma, policy_mat))
     res_vector = np.linalg.solve(my_mat, reward)
