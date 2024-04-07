@@ -9,19 +9,15 @@
       <change afterPath="$PROJECT_DIR$/.idea/Intro-to-AI.iml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/HW3/HW3/MDP/U_for_get_all_policies" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HW1/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/HW1/.idea/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HW1/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/HW1/.idea/.name" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HW1/.idea/HW1.iml" beforeDir="false" afterPath="$PROJECT_DIR$/HW1/.idea/HW1.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HW1/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/HW1/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HW1/.idea/jupyter-settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/HW1/.idea/jupyter-settings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HW1/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/HW1/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HW1/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/HW1/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/HW3/HW3/MDP/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/HW3/HW3/MDP/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HW3/HW3/MDP/mdp_implementation.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/HW3/HW3/MDP/mdp_implementation.py" beforeDir="false" afterPath="$PROJECT_DIR$/HW3/HW3/MDP/mdp_implementation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HW3/REF/mdp_implementation/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/HW3/REF/mdp_implementation/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HW3/REF/mdp_implementation/mdp_implementation.py" beforeDir="false" afterPath="$PROJECT_DIR$/HW3/REF/mdp_implementation/mdp_implementation.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -143,7 +139,7 @@
       <workItem from="1712251267258" duration="2106000" />
       <workItem from="1712396750832" duration="333000" />
       <workItem from="1712489972386" duration="649000" />
-      <workItem from="1712492292858" duration="6120000" />
+      <workItem from="1712492292858" duration="7293000" />
     </task>
     <servers />
   </component>

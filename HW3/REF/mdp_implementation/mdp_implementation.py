@@ -1,10 +1,11 @@
 from copy import deepcopy
 import numpy as np
 import itertools
+from tqdm import tqdm
 
 
 def float_equal(a, b):
-    return abs(b - a) < 1e-15
+    return abs(b - a) < 1e-6
 
 
 # need to change!
@@ -48,7 +49,7 @@ def value_iteration(mdp, U_init, epsilon=10 ** (-3)):
 
             delta = max(delta, abs(U_t[r][c] - U[r][c]))
             if float_equal(1, mdp.gamma) and float_equal(delta, 0) or (
-            not float_equal(1, mdp.gamma)) and delta < epsilon * (1 - mdp.gamma) / mdp.gamma:
+                    not float_equal(1, mdp.gamma)) and delta < epsilon * (1 - mdp.gamma) / mdp.gamma:
                 return U_t
 
 
@@ -88,20 +89,21 @@ def policy_evaluation(mdp, policy):
     p_matrix = np.array(p_matrix)
     r_vector = np.array([float(mdp.board[s[0]][s[1]]) for s in states])
 
-    u_vector = np.linalg.inv(np.eye(len(states)) - mdp.gamma * p_matrix) * r_vector.T
-    u_lst = u_vector.tolist()
-    counter = 0
+    u_vector = np.linalg.inv(np.eye(len(states)) - mdp.gamma * p_matrix) @ r_vector.T
+
+    u_to_return = []
+    idx = 0
     for i in range(mdp.num_row):
         row = []
         for j in range(mdp.num_col):
             if mdp.board[i][j] == 'WALL':
                 row.append(0)
             else:
-                row.append(u_lst[counter][0])
-                counter += 1
-        u_lst.append(row)
+                row.append(u_vector[idx])
+                idx += 1
+        u_to_return.append(row)
 
-    return u_lst
+    return u_to_return
 
 
 def policy_iteration(mdp, policy_init):
@@ -135,27 +137,66 @@ def policy_iteration(mdp, policy_init):
 """For this functions, you can import what ever you want """
 
 
-def get_all_policies(mdp, U):  # You can add more input parameters as needed
-    # TODO:
-    # Given the mdp, and the utility value U (which satisfies the Belman equation)
-    # print / display all the policies that maintain this value
-    # (a visualization must be performed to display all the policies)
-    #
-    # return: the number of different policies
-    #
+def get_all_policies(mdp, U, epsilon=1e-3, to_print=True):  # You can add more input parameters as needed
 
+    def is_equal(a, b, p=4):
+        return abs(round(a, p) - round(b, p)) <= epsilon
+
+    translate = {'UP': "↑", 'DOWN': "↓", 'RIGHT': "→", 'LEFT': "←"}
+    policies = [["" for _ in range(mdp.num_col)] for _ in range(mdp.num_row)]
+    precision = int(np.log10(1 / epsilon) + 1)
+
+    states = list(itertools.product(range(mdp.num_row), range(mdp.num_col)))
+    states = [s for s in states if mdp.board[s[0]][s[1]] != 'WALL' and s not in mdp.terminal_states]
+
+    for (r, c) in states:
+        p_vals_lst = [(p_val_for_action(mdp, (r, c), action, U), action) for action in mdp.actions]
+        max_val, _ = max(p_vals_lst, key=lambda x: x[0])
+
+        new_val_lst = [(val, action) for val, action in p_vals_lst if is_equal(val, max_val, precision)]
+        policies[r][c] = "".join([translate[action] for _, action in new_val_lst])
+
+    if to_print:
+        mdp.print_policy(policies)
+    mull = 1
+    for i in range(mdp.num_row):
+        for j in range(mdp.num_col):
+            if len(policies[i][j]) > 0:
+                mull *= len(policies[i][j])
+    return mull, policies
+
+
+def get_policy_for_different_rewards(mdp, epsilon=1e-3):
     # ====== YOUR CODE: ======
-    raise NotImplementedError
-    # ========================
+    initial_u = np.zeros((mdp.num_row, mdp.num_col)).tolist()
+
+    r_lst = np.arange(-5, 5.01, 0.01)
+    states = list(itertools.product(range(mdp.num_row), range(mdp.num_col)))
+    states = [s for s in states if mdp.board[s[0]][s[1]] != 'WALL' and s not in mdp.terminal_states]
+
+    policies_lst = []
+    for R in tqdm(r_lst):
+        curr_mdp = deepcopy(mdp)
+        for (r, c) in states:
+            curr_mdp.board[r][c] = str(round(R,2))  # need to change
+        curr_u = value_iteration(curr_mdp, initial_u)
+        _, policies = get_all_policies(curr_mdp, curr_u, to_print=False)
+        policies_lst.append(policies)
+
+    policy_ranges = []
+    start = 0
+    for i in tqdm(range(1, len(r_lst))):
+        if policies_lst[i] != policies_lst[start]:
+            policy_ranges.append((r_lst[start], r_lst[i - 1], policies_lst[start]))
+            start = i
+    policy_ranges.append((r_lst[start], r_lst[-1], policies_lst[start]))
 
 
-def get_policy_for_different_rewards(mdp):  # You can add more input parameters as needed
-    # TODO:
-    # Given the mdp
-    # print / displas the optimal policy as a function of r
-    # (reward values for any non-finite state)
-    #
-
-    # ====== YOUR CODE: ======
-    raise NotImplementedError
-    # ========================
+    for r_start, r_end, policy in policy_ranges:
+        if r_start == -5.0:
+            print(f"R(s) < {round(r_end, 2)}:\n---------------------------------")
+        elif r_end == 5.0:
+            print(f"{round(r_start, 2)} < R(s):\n---------------------------------")
+        else:
+            print(f"{round(r_start, 2)} < R(s) < {round(r_end, 2)}:\n---------------------------------")
+        mdp.print_policy(policy)
