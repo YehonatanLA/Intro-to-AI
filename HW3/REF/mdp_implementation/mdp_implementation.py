@@ -48,6 +48,8 @@ def value_iteration(mdp, U_init, epsilon=10 ** (-3)):
             U_t[r][c] = max_val * mdp.gamma + float(mdp.board[r][c])
 
             delta = max(delta, abs(U_t[r][c] - U[r][c]))
+            if float(mdp.board[0][0]) == -0.37:
+                print(delta)
             if float_equal(1, mdp.gamma) and float_equal(delta, 0) or (
                     not float_equal(1, mdp.gamma)) and delta < epsilon * (1 - mdp.gamma) / mdp.gamma:
                 return U_t
@@ -170,12 +172,12 @@ def get_policy_for_different_rewards(mdp, epsilon=1e-3):
     # ====== YOUR CODE: ======
     initial_u = np.zeros((mdp.num_row, mdp.num_col)).tolist()
 
-    r_lst = np.arange(-5, 5.01, 0.01)
+    r_lst = np.arange(-0.40, 5.01, 0.01)
     states = list(itertools.product(range(mdp.num_row), range(mdp.num_col)))
     states = [s for s in states if mdp.board[s[0]][s[1]] != 'WALL' and s not in mdp.terminal_states]
-
     policies_lst = []
-    for R in tqdm(r_lst):
+    # for R in tqdm(r_lst):
+    for R in r_lst:
         curr_mdp = deepcopy(mdp)
         for (r, c) in states:
             curr_mdp.board[r][c] = str(round(R,2))  # need to change

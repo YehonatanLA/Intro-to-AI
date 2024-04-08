@@ -1,11 +1,7 @@
 import argparse
 import os
 from mdp import MDP
-<<<<<<< HEAD
-from mdp_implementation import value_iteration, get_policy, policy_evaluation, policy_iteration, get_policy_for_different_rewards
-=======
-from mdp_implementation import value_iteration, get_policy, policy_evaluation, policy_iteration, get_all_policies
->>>>>>> f37550d7d0006ad6b104169e2b2637726175dec7
+from mdp_implementation import value_iteration, get_policy, policy_evaluation, policy_iteration, get_policy_for_different_rewards, get_all_policies
 
 
 def is_valid_file(parser, arg):
@@ -93,20 +89,15 @@ def example_driver():
 
     print("\nInitial policy:")
     mdp.print_policy(policy)
-
     print("\nFinal policy:")
     policy_new = policy_iteration(mdp, policy)
     mdp.print_policy(policy_new)
 
-    print("\n Policies for utility:")
-
-    mdp.gamma = 1.0
-    U_all = [[0.749, 0.819, 0.876, 1.0],
-         [0.692, 0, 0.564, -1.0],
-         [0.623, 0.566, 0.518, 0.252]]
-    num_policies = get_all_policies(mdp, U_all)
-    print(f"\n number of policies: {num_policies}")
     print("Done!")
+    U_init = [[0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0]]
+    # get_all_policies(mdp, U_init)
     print(get_policy_for_different_rewards(mdp))
 
 if __name__ == '__main__':

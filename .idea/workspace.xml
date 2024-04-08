@@ -5,18 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c0aefc3f-ceb8-4d3f-a970-4e530e627b76" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/Intro-to-AI.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/HW3/HW3/MDP/U_for_get_all_policies" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/HW3/HW3/MDP/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/HW3/HW3/MDP/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/HW3/HW3/MDP/mdp_implementation.py" beforeDir="false" afterPath="$PROJECT_DIR$/HW3/HW3/MDP/mdp_implementation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HW3/REF/mdp_implementation/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/HW3/REF/mdp_implementation/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/HW3/REF/mdp_implementation/mdp_implementation.py" beforeDir="false" afterPath="$PROJECT_DIR$/HW3/REF/mdp_implementation/mdp_implementation.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -50,18 +41,19 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "C:/Users/Yehonatan/Documents/Yehonatan/Technion/Semester_7/Intro to AI",
+    "last_opened_file_path": "C:/Users/Yehonatan/Documents/Yehonatan/Technion/Semester_7/Intro to AI/HW3/HW3/MDP/main.py",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Python.main_hw3">
-    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Intro to AI" />
+  <component name="RunManager">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="Intro-to-AI" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -69,31 +61,9 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/HW1" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/AI_EX2/main.py" />
-      <option name="PARAMETERS" value="expectimax greedy -t 1.0 -s 1234 -c 200 --tournament" />
-      <option name="SHOW_COMMAND_LINE" value="true" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="main_hw3" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Intro to AI" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/HW3/HW3/MDP" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="SDK_NAME" value="Python 3.9" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
@@ -106,12 +76,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Python.main_hw3" />
-        <item itemvalue="Python.main" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -139,7 +103,8 @@
       <workItem from="1712251267258" duration="2106000" />
       <workItem from="1712396750832" duration="333000" />
       <workItem from="1712489972386" duration="649000" />
-      <workItem from="1712492292858" duration="7293000" />
+      <workItem from="1712492292858" duration="11196000" />
+      <workItem from="1712559707083" duration="358000" />
     </task>
     <servers />
   </component>
@@ -159,12 +124,22 @@
           <line>237</line>
           <option name="timeStamp" value="3" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/HW3/HW3/MDP/mdp_implementation.py</url>
+          <line>251</line>
+          <option name="timeStamp" value="20" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/HW3/HW3/MDP/mdp_implementation.py</url>
+          <line>88</line>
+          <option name="timeStamp" value="32" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Intro_to_AI$main.coverage" NAME="main Coverage Results" MODIFIED="1712077566919" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/HW1" />
+    <SUITE FILE_PATH="coverage/Intro_to_AI$main.coverage" NAME="main Coverage Results" MODIFIED="1712560068722" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/Intro_to_AI$main__1_.coverage" NAME="main_hw3 Coverage Results" MODIFIED="1712088847572" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/HW3/HW3/MDP" />
-    <SUITE FILE_PATH="coverage/Intro_to_AI$main_hw3.coverage" NAME="main_hw3 Coverage Results" MODIFIED="1712497428436" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/HW3/HW3/MDP" />
+    <SUITE FILE_PATH="coverage/Intro_to_AI$main_hw3.coverage" NAME="main_hw3 Coverage Results" MODIFIED="1712523707473" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/HW3/HW3/MDP" />
   </component>
 </project>

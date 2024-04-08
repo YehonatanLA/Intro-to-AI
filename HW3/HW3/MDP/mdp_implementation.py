@@ -99,8 +99,14 @@ def value_iteration(mdp, U_init, epsilon=10 ** (-3)):
                     continue
 
                 U_bar[r][c] = find_best_utility_for_state(mdp, U_bar, r, c)
-                if np.abs(U_bar[r][c] - U[r][c]) > delta:
+
+        for r in range(mdp.num_row):
+            for c in range(mdp.num_col):
+                if round(np.abs(U_bar[r][c] - U[r][c]), 5) > delta:
                     delta = np.abs(U_bar[r][c] - U[r][c])
+        if float(mdp.board[0][0]) == -0.37:
+            mdp.print_utility(U_bar)
+
     return U
     # ========================
 
@@ -204,8 +210,8 @@ def get_all_policies(mdp, U, epsilon=10 ** (-3)):  # You can add more input para
             policy[r][c] = actions_str
             policies_num *= num_actions_cell
 
-    mdp.print_policy(policy)
-    return policies_num
+    # mdp.print_policy(policy)
+    return policies_num, policy
     # ========================
 
 
@@ -219,13 +225,11 @@ def get_policy_for_different_rewards(mdp, epsilon=10 ** (-3)):  # You can add mo
     # ====== YOUR CODE: ======
     MINIMAL_REWARD = -5
     MAXIMAL_REWARD = 5
-    policies = []
+    policies_lists = []
     rewards = []
     curr_reward = MINIMAL_REWARD
     while curr_reward <= MAXIMAL_REWARD:
-        policy = [['UP', 'UP', 'UP', None],
-                  ['UP', None, 'UP', None],
-                  ['UP', 'UP', 'UP', 'UP']]
+        initial_u = np.zeros((mdp.num_row, mdp.num_col)).tolist()
         for r in range(mdp.num_row):
             for c in range(mdp.num_col):
                 if (r, c) in mdp.terminal_states:
@@ -233,13 +237,18 @@ def get_policy_for_different_rewards(mdp, epsilon=10 ** (-3)):  # You can add mo
                 if mdp.board[r][c] == 'WALL':
                     continue
                 mdp.board[r][c] = str(curr_reward)
-        policy = policy_iteration(mdp, policy)
-        if policy not in policies:
-            policies.append(deepcopy(policy))
+        utility = value_iteration(mdp, initial_u)
+        _, curr_policies = get_all_policies(mdp, utility, epsilon)
+
+        if len(policies_lists) == 0 or curr_policies != policies_lists[-1]:
+            policies_lists.append(curr_policies)
             rewards.append(curr_reward)
             print("Reward: ", curr_reward)
-            mdp.print_policy(policy)
+            mdp.print_policy(curr_policies)
         curr_reward += 0.01
         curr_reward = round(curr_reward, 2)
+        print("Current reward: ", curr_reward)
+        if curr_reward == -0.37:
+            print("HERE")
     return rewards
     # ========================
