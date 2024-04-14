@@ -153,14 +153,13 @@ class ID3:
         #   - Build the Question node which contains the best question with true_branch, false_branch as children
         best_question = None
         true_branch, false_branch = None, None
-
         # ====== YOUR CODE: ======
         _, best_question, true_rows, true_labels, false_rows, false_labels = self.find_best_split(rows, labels)
         # if all labels are the same, return a leaf
         if len(set(labels)) == 1:
             return Leaf(rows, labels)
-        true_branch = self.build_tree(true_rows, true_labels)
-        false_branch = self.build_tree(false_rows, false_labels)
+        true_branch = self.build_tree(np.array(true_rows), np.array(true_labels))
+        false_branch = self.build_tree(np.array(false_rows), np.array(false_labels))
         # ========================
 
         return DecisionNode(best_question, true_branch, false_branch)
@@ -196,7 +195,7 @@ class ID3:
             # TODO: in case without pruning, There will be only one type of class for the leaf
             #  In which case, its enough to return the first class of the dict stored in predictions.
             #  However, when doing the pruning, we will have to return the majority class instead
-            return node.predictions.keys()[0]
+            return next(iter(node.predictions))
 
         prediction = self.predict_sample(row, node.true_branch) if node.question.match(row) else self.predict_sample(
             row, node.false_branch)
@@ -216,7 +215,7 @@ class ID3:
         y_pred = None
 
         # ====== YOUR CODE: ======
-        y_pred = np.zeros(rows.shape[0])
+        y_pred = np.array(["" for _ in range(rows.shape[0])], dtype=object)
         for idx, row in enumerate(rows):
             y_pred[idx] = self.predict_sample(row)
         # ========================
