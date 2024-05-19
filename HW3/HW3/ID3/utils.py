@@ -14,7 +14,7 @@ from sklearn.model_selection import KFold
 ========================================================================
 """
 
-ID1 = 123456789  # TODO: change it to your personal ID 
+ID1 = 212775530  # TODO: change it to your personal ID
 ID2 = 987654321  # TODO: change it to your personal ID 
 
 
@@ -112,10 +112,10 @@ def create_train_validation_split(dataset: np.array, kf: KFold, validation_ratio
     #  2. No sample is in both datasets. You can select samples at random
     #     from the dataset.
 
-    for train_index, val_idx in kf.split(dataset):
-        dl_train = dataset.loc[train_index]
-        dl_valid = dataset.loc[val_idx]
-        yield dl_train, dl_valid
+        for train_index, val_idx in kf.split(dataset):
+            dl_train = dataset.loc[train_index]
+            dl_valid = dataset.loc[val_idx]
+            yield dl_train, dl_valid
     # ========================
 
 
