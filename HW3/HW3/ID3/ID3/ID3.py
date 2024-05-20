@@ -120,13 +120,15 @@ class ID3:
         # ====== YOUR CODE: ======
         for col_idx in range(rows.shape[1]):
             sorted_column = np.sort(rows[:, col_idx])
-            for row_idx in range(rows.shape[0] - 1):
+            _, unique_indices = np.unique(sorted_column, return_index=True)
+            sorted_column_unique_numpy = sorted_column[np.sort(unique_indices)]
+            for row_idx in range(sorted_column_unique_numpy.shape[0] - 1):
                 # like the lecture - take the half from the current and next value
-                value = (sorted_column[row_idx] + sorted_column[row_idx + 1]) / 2
-                question = Question(sorted_column, col_idx, value)
+                value = (sorted_column_unique_numpy[row_idx] + sorted_column_unique_numpy[row_idx + 1]) / 2
+                question = Question(self.label_names[col_idx], col_idx, value)
                 gain, true_rows, true_labels, false_rows, false_labels = self.partition(rows, labels, question,
                                                                                         current_uncertainty)
-                if gain > best_gain:
+                if gain >= best_gain:
                     best_gain = gain
                     best_question = question
                     best_true_rows = true_rows
@@ -156,7 +158,7 @@ class ID3:
         # ====== YOUR CODE: ======
         _, best_question, true_rows, true_labels, false_rows, false_labels = self.find_best_split(rows, labels)
         # if all labels are the same, return a leaf
-        if len(set(labels)) == 1 or len(labels) < self.min_for_pruning:
+        if len(set(labels)) == 1 or len(labels) <= self.min_for_pruning:
             return Leaf(rows, labels)
         true_branch = self.build_tree(np.array(true_rows), np.array(true_labels))
         false_branch = self.build_tree(np.array(false_rows), np.array(false_labels))

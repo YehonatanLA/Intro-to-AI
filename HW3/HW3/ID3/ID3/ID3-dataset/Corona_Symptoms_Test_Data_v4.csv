@@ -1,0 +1,6 @@
+Fever,Cough,Smell_Loss,Weakness,Corona
+1,0,1,0.6,T
+0,1,0,0,F
+1,1,0,0,T
+0,1,1,0.8,F
+1,0,0,0,F

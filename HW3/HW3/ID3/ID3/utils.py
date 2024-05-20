@@ -14,11 +14,11 @@ from sklearn.model_selection import KFold
 ========================================================================
 """
 
-ID1 = 123456789  # TODO: change it to your personal ID 
-ID2 = 987654321  # TODO: change it to your personal ID 
+ID1 = 123456789  # TODO: change it to your personal ID
+ID2 = 987654321  # TODO: change it to your personal ID
 
 
-ID_KEY = ID1+ID2%1000000000
+ID_KEY = ID1+ID2 % 1000000000
 random_gen = RandomState(seed=ID_KEY)
 print_formatted_values = False
 
@@ -40,7 +40,6 @@ def accuracy(y: np.array, y_pred: np.array):
 
     assert y.shape == y_pred.shape
     assert y.ndim == 1
-
     accuracy_val = np.sum(y == y_pred) / y.shape[0]
 
     return accuracy_val
@@ -52,7 +51,7 @@ def rm_row(n, top=330):
     tmp = n
     for inde in ind:
         dig = n % 10
-        ret.append(inde + dig)  
+        ret.append(inde + dig)
         n = n//10 if n > 10 else tmp
     return ret
 
@@ -158,3 +157,4 @@ def get_dataset_split(train_set: np.array, test_set: np.array, target_attribute:
     y_test = np.array(test_set[target_attribute].copy())
 
     return x_train, y_train, x_test, y_test
+
